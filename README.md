@@ -17,9 +17,9 @@ Copyright &copy; 2013 <a href="http://www.shawware.com.au/"
 Packages
 --------
 
-au.com.shawware.sandbox.model
-au.com.shawware.sandbox.persistence
-au.com.shawware.sandbox.spring
+* au.com.shawware.sandbox.model
+* au.com.shawware.sandbox.persistence
+* au.com.shawware.sandbox.spring
 
 License
 -------
