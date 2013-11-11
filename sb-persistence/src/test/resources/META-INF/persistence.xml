@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+  xmlns="http://java.sun.com/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+  http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+
+  <persistence-unit name="testJPA" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <class>au.com.shawware.sandbox.model.Node</class>
+    <properties>
+      <property name="connection.shutdown" value="true" />
+      <property name="connection.url" value="jdbc:hsqldb:file:target/node.dat" />
+      <property name="connection.autocommit" value="true" />
+      <property name="connection.autocommit" value="true" />
+      <property name="hibernate.connection.shutdown" value="true" />
+      <property name="hibernate.connection.url" value="jdbc:hsqldb:file:target/node.dat" />
+      <property name="hibernate.connection.autocommit" value="true" />
+      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.format_sql" value="true" />
+      <property name="hibernate.hbm2ddl.auto" value="create" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+    </properties>
+  </persistence-unit>
+</persistence>

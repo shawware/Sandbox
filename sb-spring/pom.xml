@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>au.com.shawware.sw-sandbox</groupId>
+  <artifactId>sb-spring</artifactId>
+  <name>Sandbox Spring Explorer</name>
+  <description>A sandbox for exploring the Spring Framework. Probably won't be used to build the larger Sandbox applications.</description>
+
+  <parent>
+    <groupId>au.com.shawware</groupId>
+    <artifactId>sw-sandbox</artifactId>
+    <version>0.1</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>3.2.4.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:component-scan base-package="au.com.shawware.sandbox.spring"/>
+
+  <bean id="b1" class="au.com.shawware.sandbox.spring.BasicBean" scope="singleton">
+    <constructor-arg type="int" value="7"/>
+    <constructor-arg type="java.lang.String" value="Constructor Arg By Type"/>
+  </bean>
+  <bean id="b2" class="au.com.shawware.sandbox.spring.BasicBean" scope="prototype">
+    <property name="value" value="11"/>
+    <property name="name" value="Setters"/>
+  </bean>
+  <!-- The following is apparently invalid XML, despite being in the Spring examples. -->
+  <!--
+  <bean id="b3" class="au.com.shawware.sandbox.spring.BasicBean" scope="prototype">
+    <constructor-arg name="value" value="9"/>
+    <constructor-arg name="name" value="Constructor Arg By Name"/>
+  </bean>
+  -->
+
+  <bean id="id-bean" class="au.com.shawware.sandbox.spring.BasicBean" scope="singleton">
+    <property name="value" value="31"/>
+    <property name="name" value="Composite ID"/>
+  </bean>
+  <bean id="ref-bean" class="au.com.shawware.sandbox.spring.BasicBean" scope="singleton">
+    <property name="value" value="37"/>
+    <property name="name" value="Composite Ref"/>
+  </bean>
+  <bean id="injectee" class="au.com.shawware.sandbox.spring.BasicBean" scope="singleton">
+    <property name="value" value="19"/>
+    <property name="name" value="Injected Bean"/>
+  </bean>
+  <bean id="cb" class="au.com.shawware.sandbox.spring.CompositeBean" scope="singleton">
+    <property name="id" ref="id-bean"/>
+    <property name="idRef">
+      <idref bean="ref-bean"/>
+    </property>
+    <property name="inner">
+      <bean class="au.com.shawware.sandbox.spring.BasicBean">
+        <property name="value" value="43"/>
+        <property name="name" value="Inner Bean"/>
+      </bean>
+    </property>
+    <property name="compound.name" value="Something else"/>
+    <property name="numbers">
+      <list>
+        <value>7</value>
+        <value>17</value>
+        <value>37</value>
+      </list>
+    </property>
+  </bean>
+</beans>
