@@ -17,7 +17,7 @@ import au.com.shawware.sandbox.model.Node;
 import au.com.shawware.sandbox.model.NodeType;
 
 /**
- * Base class for unit tests.
+ * Base class for repository unit tests.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
@@ -27,7 +27,7 @@ public abstract class AbstractRepositoryTest
     private Log mLog;
 
     /**
-     * 
+     * Default constructor. Setup the basics.
      */
     public AbstractRepositoryTest()
     {
@@ -40,8 +40,8 @@ public abstract class AbstractRepositoryTest
      * 
      * @param repo the repository to use
      */
-    @SuppressWarnings({ "nls" })
-    public void testRepository(final NodeRepository repo)
+    @SuppressWarnings("nls")
+    protected void testRepository(final NodeRepository repo)
     {
         final Node n = repo.save(new Node(NodeType.Country));
         mLog.info("First node: " + n);
