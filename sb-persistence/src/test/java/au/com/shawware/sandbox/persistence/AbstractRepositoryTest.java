@@ -15,12 +15,14 @@ import org.junit.Assert;
 
 import au.com.shawware.sandbox.model.Node;
 import au.com.shawware.sandbox.model.NodeType;
+import au.com.shawware.util.ValueCounter;
 
 /**
  * Base class for repository unit tests.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
+@SuppressWarnings("nls")
 public abstract class AbstractRepositoryTest
 {
     /** The logger to use for all output. */
@@ -40,7 +42,6 @@ public abstract class AbstractRepositoryTest
      * 
      * @param repo the repository to use
      */
-    @SuppressWarnings("nls")
     protected void testRepository(final NodeRepository repo)
     {
         final Node n = repo.save(new Node(NodeType.Country));
@@ -54,5 +55,43 @@ public abstract class AbstractRepositoryTest
         Assert.assertEquals("did not find a country node", 1, nodes.size());
         final Node n2 = repo.findOne(n.getId());
         mLog.info("node lookup: " + n2);
+        repo.delete(Integer.valueOf(1));
+    }
+
+    /**
+     * Creates bulk (ish) data and verifies it.
+     *
+     * @param repo the repository to use
+     */
+    protected void testBulkData(final NodeRepository repo)
+    {
+        final NodeType[] types = NodeType.values();
+        final ValueCounter<NodeType> counts = new ValueCounter<NodeType>();
+        int i;
+        for (i=0; i<types.length; i++)
+        {
+            counts.initialiseCount(types[i]);
+        }
+        final NodeType[] data = new NodeType[]
+        {
+             NodeType.Local,
+             NodeType.Local,
+             NodeType.Country,
+             NodeType.Region,
+             NodeType.World,
+             NodeType.Region,
+        };
+        for (i=0; i<data.length; i++)
+        {
+            counts.countValue(data[i]);
+            final Node n = repo.save(new Node(data[i]));
+            mLog.info(n);
+        }
+        for (i=0; i<types.length; i++)
+        {
+            final List<Node> nodes = repo.findByType(types[i]);
+            Assert.assertEquals(counts.count(types[i]), nodes.size());
+            mLog.info("Found " + nodes.size() + " instance(s) of " + types[i]);
+        }
     }
 }

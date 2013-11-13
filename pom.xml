@@ -26,7 +26,7 @@
     <dependency>
       <groupId>au.com.shawware</groupId>
       <artifactId>sw-util</artifactId>
-      <version>0.9.7</version>
+      <version>0.9.8</version>
     </dependency>
   </dependencies>
 

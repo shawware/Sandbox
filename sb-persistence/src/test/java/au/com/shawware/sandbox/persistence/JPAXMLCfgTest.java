@@ -29,8 +29,17 @@ public class JPAXMLCfgTest extends AbstractRepositoryTest
      * Verify that our basic bean works and can be loaded via the context.
      */
     @Test
-    public void simpleMake()
+    public void simpleTest()
     {
         testRepository(mRepo);
+    }
+
+    /**
+     * Tests on bulk data.
+     */
+    @Test
+    public void bulkDataTest()
+    {
+        testBulkData(mRepo);
     }
 }
