@@ -7,11 +7,16 @@
 
 package au.com.shawware.sandbox.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 /**
  * Defines a node within a tree. Follows the Composite pattern.
@@ -28,14 +33,25 @@ public class Node
     @Column (name = "ID")
     private Integer mID;
 
+    /** The node's activity. */
+    // Naming this attribute as mActivity breaks autowiring this type's repository??
+    @Column (name = "Activity", nullable = false, length = 200)
+    private String activity;
+
     /** The node's type. */
     // Naming this attribute as mType breaks autowiring this type's repository??
-    @Column (name = "Type", nullable = false)
+    @Column (name = "Type", nullable = false, updatable = false)
     private NodeType type;
 
     /** The node's description. */
     @Column (name = "Description", nullable = false, length = 200)
     private String mDesc;
+
+    /** The node's parent, <code>null</code> if root. */
+    // Don't cascade on persist if you're going to save nodes with the parent set.
+    @ManyToOne(optional = true, cascade = { CascadeType.REMOVE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "ParentID")
+    private Node mParent;
 
     /**
      * Default constructor for a node.
@@ -49,12 +65,14 @@ public class Node
      * Constructs a new node where the ID is not yet known.
      * This is typically the case before the Node is stored.
      * 
+     * @param activity the new node's activity
      * @param type the new node's type
      * @param desc the new node's description
      */
-    public Node(final NodeType type, final String desc)
+    public Node(final String activity, final NodeType type, final String desc)
     {
         this();
+        this.activity = activity;
         this.type = type;
         mDesc = desc;
     }
@@ -63,12 +81,13 @@ public class Node
      * Constructs a new node where the ID is known.
      * 
      * @param id the new node's unique identifier
+     * @param activity the new node's activity
      * @param type the new node's type
      * @param desc the new node's description
      */
-    public Node(final Integer id, final NodeType type, final String desc)
+    public Node(final Integer id, final String activity, final NodeType type, final String desc)
     {
-        this(type, desc);
+        this(activity, type, desc);
         mID = id;
     }
 
@@ -88,6 +107,24 @@ public class Node
     public void setId(final Integer id)
     {
         mID = id;
+    }
+
+    /**
+     * @return this node's activity 
+     */
+    public String getActivity()
+    {
+        return activity;
+    }
+
+    /**
+     * Sets this node's activity.
+     * 
+     * @param activity the new activity
+     */
+    public void setActivity(final String activity)
+    {
+        this.activity = activity;
     }
 
     /**
@@ -126,9 +163,53 @@ public class Node
         mDesc = desc;
     }
 
+    /**
+     * @return this node's parent 
+     */
+    public Node getParent()
+    {
+        return mParent;
+    }
+
+    /**
+     * Sets this node's parent.
+     * 
+     * @param parent the new parent
+     */
+    public void setParent(final Node parent)
+    {
+        // TODO: prevent cycles and self-reference.
+        mParent = parent;
+    }
+
+    /**
+     * @return Whether this node is the root node.
+     */
+    @Transient
+    public boolean isRoot()
+    {
+        return (mParent == null);
+    }
+
     @Override
+    @SuppressWarnings("nls")
     public String toString()
     {
-        return "Node (" + mID + ", " + type.toString() + ", " + mDesc + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        final StringBuilder s = new StringBuilder();
+        s.append("Node (")
+         .append(mID)
+         .append(", ")
+         .append(activity)
+         .append(", ")
+         .append(type.toString())
+         .append(", ")
+         .append(mDesc)
+         .append(")");
+        if (!isRoot())
+        {
+            s.append(" => ")
+             .append(mParent.toString());
+        }
+        return s.toString();
     }
 }

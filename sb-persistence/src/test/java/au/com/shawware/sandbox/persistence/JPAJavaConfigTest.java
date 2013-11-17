@@ -68,7 +68,6 @@ public class JPAJavaConfigTest extends AbstractRepositoryTest
         testRepository(sRepo);
     }
 
-
     /**
      * Tests on bulk data.
      */
@@ -76,5 +75,14 @@ public class JPAJavaConfigTest extends AbstractRepositoryTest
     public void bulkDataTest()
     {
         testBulkData(sRepo);
+    }
+
+    /**
+     * Tests on parent relationship.
+     */
+    @Test
+    public void parentRelationshipTest()
+    {
+        testParentRelationship(sRepo);
     }
 }

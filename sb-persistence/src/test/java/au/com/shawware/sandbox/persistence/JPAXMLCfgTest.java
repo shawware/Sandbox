@@ -42,4 +42,13 @@ public class JPAXMLCfgTest extends AbstractRepositoryTest
     {
         testBulkData(mRepo);
     }
+
+    /**
+     * Tests on parent relationship.
+     */
+    @Test
+    public void parentRelationshipTest()
+    {
+        testParentRelationship(mRepo);
+    }
 }

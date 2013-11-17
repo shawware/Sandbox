@@ -18,8 +18,12 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class ModelTest
 {
+    /* Pre-defined sport */
+    private static final String FOOTBALL = "Football";
     /* Pre-defined country */
     private static final String OZ = "Australia";
+    /* Pre-defined region */
+    private static final String AFC = "AFC";
 
     /**
      * Test the node entity.
@@ -28,10 +32,15 @@ public class ModelTest
     @SuppressWarnings("static-method")
     public void nodeTest()
     {
-        final Node n = new Node(Integer.valueOf(5), NodeType.Country, OZ);
-        System.out.println(n);
-        Assert.assertEquals(Integer.valueOf(5), n.getId());
-        Assert.assertEquals(NodeType.Country, n.getType());
-        Assert.assertEquals(OZ, n.getDescription());
+        final Node child = new Node(Integer.valueOf(5), FOOTBALL, NodeType.Country, OZ);
+        Assert.assertEquals(Integer.valueOf(5), child.getId());
+        Assert.assertEquals(FOOTBALL, child.getActivity());
+        Assert.assertEquals(NodeType.Country, child.getType());
+        Assert.assertEquals(OZ, child.getDescription());
+
+        final Node parent = new Node(Integer.valueOf(4), FOOTBALL, NodeType.Region, AFC);
+        child.setParent(parent);
+        System.out.println(parent);
+        System.out.println(child);
     }
 }

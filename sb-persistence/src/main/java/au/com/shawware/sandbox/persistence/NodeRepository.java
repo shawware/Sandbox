@@ -24,11 +24,21 @@ import au.com.shawware.sandbox.model.NodeType;
 public interface NodeRepository extends CrudRepository<Node, Integer>
 {
     /**
-     * Retrieve all the nodes with the given type.
+     * Retrieve all the nodes with the given activity and type.
      * 
      * @param type the type of look for
      * 
      * @return the matching nodes
      */
     public List<Node> findByType(final NodeType type);
+
+    /**
+     * Retrieve all the nodes with the given activity and type.
+     * 
+     * @param activity the activity to look for
+     * @param type the type of look for
+     * 
+     * @return the matching nodes
+     */
+    public List<Node> findByActivityAndType(final String activity, final NodeType type);
 }

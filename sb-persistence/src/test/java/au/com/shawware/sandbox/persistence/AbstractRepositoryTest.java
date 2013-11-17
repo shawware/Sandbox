@@ -7,7 +7,10 @@
 
 package au.com.shawware.sandbox.persistence;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,14 +47,16 @@ public abstract class AbstractRepositoryTest
      */
     protected void testRepository(final NodeRepository repo)
     {
-        final Node n = repo.save(new Node(NodeType.Country, "Australia"));
+        final String ACTIVITY = "Basketball";
+        final Node n = repo.save(new Node(ACTIVITY, NodeType.Country, "Australia"));
         mLog.info("First node: " + n);
+        Assert.assertEquals(ACTIVITY, n.getActivity());
         Assert.assertEquals(NodeType.Country, n.getType());
         Assert.assertEquals(Integer.valueOf(1), n.getId());
         List<Node> nodes;
-        nodes = repo.findByType(NodeType.Local);
+        nodes = repo.findByActivityAndType(ACTIVITY, NodeType.Local);
         Assert.assertEquals("found a local node", 0, nodes.size());
-        nodes = repo.findByType(NodeType.Country);
+        nodes = repo.findByActivityAndType(ACTIVITY, NodeType.Country);
         Assert.assertEquals("did not find a country node", 1, nodes.size());
         final Node n2 = repo.findOne(n.getId());
         mLog.info("node lookup: " + n2);
@@ -65,6 +70,7 @@ public abstract class AbstractRepositoryTest
      */
     protected void testBulkData(final NodeRepository repo)
     {
+        final String ACTIVITY = "Football-Test";
         final NodeType[] types = NodeType.values();
         final ValueCounter<NodeType> counts = new ValueCounter<NodeType>();
         int i;
@@ -84,14 +90,85 @@ public abstract class AbstractRepositoryTest
         for (i=0; i<data.length; i++)
         {
             counts.countValue(data[i].type);
-            final Node n = repo.save(new Node(data[i].type, data[i].desc));
+            final Node n = repo.save(new Node(ACTIVITY, data[i].type, data[i].desc));
             mLog.info(n);
         }
         for (i=0; i<types.length; i++)
         {
-            final List<Node> nodes = repo.findByType(types[i]);
+            final List<Node> nodes = repo.findByActivityAndType(ACTIVITY, types[i]);
             Assert.assertEquals(counts.count(types[i]), nodes.size());
             mLog.info("Found " + nodes.size() + " instance(s) of " + types[i]);
+        }
+    }
+
+    protected void testParentRelationship(final NodeRepository repo)
+    {
+        final String ACTIVITY = "Football";
+        /**
+         * Test data:
+         *  - the first item must be the root
+         *  - we specify the parent as the node "above" with type immediately "less than" current type
+         */
+        final Node[] data = new Node[]
+        {
+             new Node(ACTIVITY, NodeType.World, "FIFA"),
+             new Node(ACTIVITY, NodeType.Region, "AFC"),
+             new Node(ACTIVITY, NodeType.Country, "Australia"),
+             new Node(ACTIVITY, NodeType.State, "NSW"),
+             new Node(ACTIVITY, NodeType.Local, "SUSFC"),
+             new Node(ACTIVITY, NodeType.Local, "BTFC"),
+             new Node(ACTIVITY, NodeType.State, "VIC"),
+             new Node(ACTIVITY, NodeType.Local, "BFC"),
+        };
+        int i;
+        final Node root = data[0];
+        mLog.info(root);
+        for (i=1; i<data.length; i++)
+        {
+            final Node child = data[i];
+            for (int j = (i-1); j >= 0; j--)
+            {
+                if (data[j].getType().ordinal() == (child.getType().ordinal() - 1))
+                {
+                    child.setParent(data[j]);
+                    mLog.info("Node[" + i + "]'s parent is Node[" + j + "]");
+                    break;
+                }
+            }
+            mLog.info(child);
+        }
+        final Map<Integer, Node> nodes = new HashMap<Integer, Node>();
+        for (i=0; i<data.length; i++)
+        {
+            final Node n = repo.save(data[i]);
+            mLog.info("Saved data[" + i + "]: " + n);
+            nodes.put(n.getId(), n);
+        }
+        final Iterator<Integer> ids = nodes.keySet().iterator();
+        while (ids.hasNext())
+        {
+            final Integer id = ids.next();
+            final Node n1 = nodes.get(id);
+            mLog.info("Looking for: " + n1);
+            final Node n2 = repo.findOne(id);
+            mLog.info("Found: " + n2);
+            // TODO: write: Node.equals()?
+            Assert.assertEquals(n1.getId(), n2.getId());
+            Assert.assertEquals(n1.getActivity(), n2.getActivity());
+            Assert.assertEquals(n1.getType(), n2.getType());
+            Assert.assertEquals(n1.getDescription(), n2.getDescription());
+            // Test cascade on load.
+            if (!n1.isRoot())
+            {
+                Assert.assertEquals(n1.getParent().getId(), n2.getParent().getId());
+                Assert.assertEquals(n1.getParent().getActivity(), n2.getParent().getActivity());
+                Assert.assertEquals(n1.getParent().getType(), n2.getParent().getType());
+                Assert.assertEquals(n1.getParent().getDescription(), n2.getParent().getDescription());
+            }
+            // Cascade on load "works". That is, parent nodes are loaded all the way up to the root.
+            // However, if you study the actual objects, there's multiple copies created.
+            // There's no efficiency or recognition they're the same.
+            // The nodes will compare equal, but a lot of memory is being wasted.
         }
     }
 
