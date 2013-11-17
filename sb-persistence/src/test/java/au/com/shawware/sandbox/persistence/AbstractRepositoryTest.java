@@ -44,7 +44,7 @@ public abstract class AbstractRepositoryTest
      */
     protected void testRepository(final NodeRepository repo)
     {
-        final Node n = repo.save(new Node(NodeType.Country));
+        final Node n = repo.save(new Node(NodeType.Country, "Australia"));
         mLog.info("First node: " + n);
         Assert.assertEquals(NodeType.Country, n.getType());
         Assert.assertEquals(Integer.valueOf(1), n.getId());
@@ -72,19 +72,19 @@ public abstract class AbstractRepositoryTest
         {
             counts.initialiseCount(types[i]);
         }
-        final NodeType[] data = new NodeType[]
+        final Datum[] data = new Datum[]
         {
-             NodeType.Local,
-             NodeType.Local,
-             NodeType.Country,
-             NodeType.Region,
-             NodeType.World,
-             NodeType.Region,
+             new Datum(NodeType.Local, "SUSFC"),
+             new Datum(NodeType.Local, "BTFC"),
+             new Datum(NodeType.Country, "Australia"),
+             new Datum(NodeType.Region, "AFC"),
+             new Datum(NodeType.World, "FIFA"),
+             new Datum(NodeType.Region, "Oceania")
         };
         for (i=0; i<data.length; i++)
         {
-            counts.countValue(data[i]);
-            final Node n = repo.save(new Node(data[i]));
+            counts.countValue(data[i].type);
+            final Node n = repo.save(new Node(data[i].type, data[i].desc));
             mLog.info(n);
         }
         for (i=0; i<types.length; i++)
@@ -92,6 +92,29 @@ public abstract class AbstractRepositoryTest
             final List<Node> nodes = repo.findByType(types[i]);
             Assert.assertEquals(counts.count(types[i]), nodes.size());
             mLog.info("Found " + nodes.size() + " instance(s) of " + types[i]);
+        }
+    }
+
+    /**
+     * Holds a test datum.
+     */
+    private class Datum
+    {
+        /* Node type datum. */
+        public NodeType type;
+        /* Node description datum. */
+        public String desc;
+
+        /**
+         * Construct a new datum using the given data.
+         * 
+         * @param type node type
+         * @param desc node description
+         */
+        Datum(final NodeType type, final String desc)
+        {
+            this.type = type;
+            this.desc = desc;
         }
     }
 }

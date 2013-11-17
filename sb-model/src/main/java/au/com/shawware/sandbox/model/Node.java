@@ -7,6 +7,7 @@
 
 package au.com.shawware.sandbox.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,11 +24,18 @@ public class Node
 {
     /** The node's unique identifier. */
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column (name = "ID")
+    private Integer mID;
 
     /** The node's type. */
+    // Naming this attribute as mType breaks autowiring this type's repository??
+    @Column (name = "Type", nullable = false)
     private NodeType type;
+
+    /** The node's description. */
+    @Column (name = "Description", nullable = false, length = 200)
+    private String mDesc;
 
     /**
      * Default constructor for a node.
@@ -42,11 +50,13 @@ public class Node
      * This is typically the case before the Node is stored.
      * 
      * @param type the new node's type
+     * @param desc the new node's description
      */
-    public Node(final NodeType type)
+    public Node(final NodeType type, final String desc)
     {
         this();
         this.type = type;
+        mDesc = desc;
     }
 
     /**
@@ -54,11 +64,12 @@ public class Node
      * 
      * @param id the new node's unique identifier
      * @param type the new node's type
+     * @param desc the new node's description
      */
-    public Node(final Integer id, final NodeType type)
+    public Node(final Integer id, final NodeType type, final String desc)
     {
-        this(type);
-        this.id = id;
+        this(type, desc);
+        mID = id;
     }
 
     /**
@@ -66,7 +77,7 @@ public class Node
      */
     public Integer getId()
     {
-        return id;
+        return mID;
     }
 
     /**
@@ -76,7 +87,7 @@ public class Node
      */
     public void setId(final Integer id)
     {
-        this.id = id;
+        mID = id;
     }
 
     /**
@@ -97,9 +108,27 @@ public class Node
         this.type = type;
     }
 
+    /**
+     * @return this node's description 
+     */
+    public String getDescription()
+    {
+        return mDesc;
+    }
+
+    /**
+     * Sets this node's description.
+     * 
+     * @param desc the new description
+     */
+    public void setDescription(final String desc)
+    {
+        mDesc = desc;
+    }
+
     @Override
     public String toString()
     {
-        return "Node (" + id + ", " + type.toString() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return "Node (" + mID + ", " + type.toString() + ", " + mDesc + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 }

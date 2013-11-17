@@ -15,8 +15,12 @@ import org.junit.Test;
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
+@SuppressWarnings("nls")
 public class ModelTest
 {
+    /* Pre-defined country */
+    private static final String OZ = "Australia";
+
     /**
      * Test the node entity.
      */
@@ -24,9 +28,10 @@ public class ModelTest
     @SuppressWarnings("static-method")
     public void nodeTest()
     {
-        final Node n = new Node(Integer.valueOf(5), NodeType.Country);
+        final Node n = new Node(Integer.valueOf(5), NodeType.Country, OZ);
         System.out.println(n);
         Assert.assertEquals(Integer.valueOf(5), n.getId());
         Assert.assertEquals(NodeType.Country, n.getType());
+        Assert.assertEquals(OZ, n.getDescription());
     }
 }
