@@ -9,6 +9,8 @@ package au.com.shawware.sandbox.model;
 
 /**
  * Enumerates the various types of {@link Node}.
+ * Each type nests within the previous type, with 'World' at the root.
+ * Therefore the ordinal values can be used to make useful comparisons.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */

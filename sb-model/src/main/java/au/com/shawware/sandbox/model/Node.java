@@ -21,6 +21,14 @@ import javax.persistence.Transient;
 /**
  * Defines a node within a tree. Follows the Composite pattern.
  * Implemented as a simple bean / entity.
+ * 
+ * Note: Spring seems to have trouble if persisted attributes'
+ * names don't match the method names exactly. So we avoid our
+ * usual naming convention of 'mProperty' and use 'property'.
+ * 
+ * The underlying cause of the issue appears to be that Spring
+ * uses reflection (or similar) and probes the properties
+ * themselves rather than their bean method names.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
@@ -31,27 +39,25 @@ public class Node
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column (name = "ID")
-    private Integer mID;
+    private Integer id;
 
     /** The node's activity. */
-    // Naming this attribute as mActivity breaks autowiring this type's repository??
     @Column (name = "Activity", nullable = false, length = 200)
     private String activity;
 
     /** The node's type. */
-    // Naming this attribute as mType breaks autowiring this type's repository??
     @Column (name = "Type", nullable = false, updatable = false)
     private NodeType type;
 
     /** The node's description. */
     @Column (name = "Description", nullable = false, length = 200)
-    private String mDesc;
+    private String desc;
 
     /** The node's parent, <code>null</code> if root. */
     // Don't cascade on persist if you're going to save nodes with the parent set.
     @ManyToOne(optional = true, cascade = { CascadeType.REMOVE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "ParentID")
-    private Node mParent;
+    private Node parent;
 
     /**
      * Default constructor for a node.
@@ -74,7 +80,7 @@ public class Node
         this();
         this.activity = activity;
         this.type = type;
-        mDesc = desc;
+        this.desc = desc;
     }
 
     /**
@@ -88,7 +94,7 @@ public class Node
     public Node(final Integer id, final String activity, final NodeType type, final String desc)
     {
         this(activity, type, desc);
-        mID = id;
+        this.id = id;
     }
 
     /**
@@ -96,7 +102,7 @@ public class Node
      */
     public Integer getId()
     {
-        return mID;
+        return id;
     }
 
     /**
@@ -106,7 +112,7 @@ public class Node
      */
     public void setId(final Integer id)
     {
-        mID = id;
+        this.id = id;
     }
 
     /**
@@ -150,7 +156,7 @@ public class Node
      */
     public String getDescription()
     {
-        return mDesc;
+        return desc;
     }
 
     /**
@@ -160,7 +166,7 @@ public class Node
      */
     public void setDescription(final String desc)
     {
-        mDesc = desc;
+        this.desc = desc;
     }
 
     /**
@@ -168,7 +174,7 @@ public class Node
      */
     public Node getParent()
     {
-        return mParent;
+        return parent;
     }
 
     /**
@@ -179,7 +185,7 @@ public class Node
     public void setParent(final Node parent)
     {
         // TODO: prevent cycles and self-reference.
-        mParent = parent;
+        this.parent = parent;
     }
 
     /**
@@ -188,7 +194,7 @@ public class Node
     @Transient
     public boolean isRoot()
     {
-        return (mParent == null);
+        return (parent == null);
     }
 
     @Override
@@ -197,18 +203,18 @@ public class Node
     {
         final StringBuilder s = new StringBuilder();
         s.append("Node (")
-         .append(mID)
+         .append(id)
          .append(", ")
          .append(activity)
          .append(", ")
          .append(type.toString())
          .append(", ")
-         .append(mDesc)
+         .append(desc)
          .append(")");
         if (!isRoot())
         {
             s.append(" => ")
-             .append(mParent.toString());
+             .append(parent.toString());
         }
         return s.toString();
     }
