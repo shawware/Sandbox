@@ -25,6 +25,12 @@ public class JPAXMLCfgTest extends AbstractRepositoryTest
     @Autowired
     private NodeRepository mRepo;
 
+    @Override
+    protected String salt()
+    {
+        return "XML"; //$NON-NLS-1$
+    }
+
     /**
      * Verify that our basic bean works and can be loaded via the context.
      */
@@ -50,5 +56,14 @@ public class JPAXMLCfgTest extends AbstractRepositoryTest
     public void parentRelationshipTest()
     {
         testParentRelationship(mRepo);
+    }
+
+    /**
+     * Tests on child relationship.
+     */
+    @Test
+    public void childRelationshipTest()
+    {
+        testChildRelationship(mRepo);
     }
 }

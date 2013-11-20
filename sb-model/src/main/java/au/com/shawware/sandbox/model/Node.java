@@ -7,6 +7,9 @@
 
 package au.com.shawware.sandbox.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 /**
@@ -59,12 +63,17 @@ public class Node
     @JoinColumn(name = "ParentID")
     private Node parent;
 
+    /** The node's children, <code>null</code> or empty if leaf. */
+    @OneToMany(orphanRemoval = true, cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "parent")
+    private Set<Node> children;
+
     /**
      * Default constructor for a node.
      */
     public Node()
     {
         super();
+        children = new HashSet<Node>();
     }
 
     /**
@@ -185,7 +194,41 @@ public class Node
     public void setParent(final Node parent)
     {
         // TODO: prevent cycles and self-reference.
+        // TODO: check for correct type nesting
         this.parent = parent;
+    }
+
+    /**
+     * Adds the given node as a child of this one.
+     * Sets the child node's parent accordingly.
+     * 
+     * @param child the new child node
+     */
+    public void addChild(final Node child)
+    {
+        // TODO: check if child already in this set.
+        children.add(child);
+        child.setParent(this);
+    }
+
+    /**
+     * @return this node's children 
+     */
+    public Set<Node> getChildren()
+    {
+        return children;
+    }
+
+    /**
+     * Sets this node's children.
+     * 
+     * @param children the new children
+     */
+    public void setChildren(final Set<Node> children)
+    {
+        // TODO: check for cycles, etc.
+        // TODO: check for correct type nesting
+        this.children = children;
     }
 
     /**
@@ -195,6 +238,15 @@ public class Node
     public boolean isRoot()
     {
         return (parent == null);
+    }
+
+    /**
+     * @return Whether this node is a leaf node.
+     */
+    @Transient
+    public boolean isLeaf()
+    {
+        return ((children == null) || (children.size() == 0));
     }
 
     @Override
@@ -211,11 +263,6 @@ public class Node
          .append(", ")
          .append(desc)
          .append(")");
-        if (!isRoot())
-        {
-            s.append(" => ")
-             .append(parent.toString());
-        }
         return s.toString();
     }
 }
