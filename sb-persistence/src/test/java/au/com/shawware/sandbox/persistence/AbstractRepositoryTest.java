@@ -230,6 +230,11 @@ public abstract class AbstractRepositoryTest
         repo.save(root);
         mLog.info("Root:\n" + NodeDisplay.createDisplayString(root));
         mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
+
+        Node copy = repo.findOne(root.getId());
+        mLog.info("Root(2):\n" + NodeDisplay.createDisplayString(copy));
+        copy = repo.findOne(data[3].getId());
+        mLog.info("NSW(2):\n" + NodeDisplay.createDisplayString(copy));
     }
 
     /**
@@ -248,7 +253,7 @@ public abstract class AbstractRepositoryTest
          * @param type node type
          * @param desc node description
          */
-        Datum(final NodeType type, final String desc)
+        public Datum(final NodeType type, final String desc)
         {
             this.type = type;
             this.desc = desc;

@@ -73,12 +73,15 @@ public class NodeDisplay
                     }
                     oneLess = true;
                 }
-                final int tabs = oneLess ? ni.level - 1 : ni.level;
+                final int tabs = ni.level - (oneLess ? 1 : 0);
                 for (int i=0; i<tabs; i++)
                 {
                     sb.append("    ");
                 }
                 sb.append(n.toString());
+                sb.append(" (").
+                   append(System.identityHashCode(n)).
+                   append(")");
                 sb.append("\n");
             }
         }
@@ -113,6 +116,7 @@ class NodeInfo
     public int level;
     /** The node. */
     public Node node;
+
     /**
      * Construct a new info instance with the given attributes.
      * 
