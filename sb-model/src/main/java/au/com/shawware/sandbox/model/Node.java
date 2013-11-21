@@ -8,7 +8,10 @@
 package au.com.shawware.sandbox.model;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,8 +26,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 /**
- * Defines a node within a tree. Follows the Composite pattern.
- * Implemented as a simple bean / entity.
+ * Defines a node within a tree. Implemented as a simple bean / entity.
  * 
  * Note: Spring seems to have trouble if persisted attributes'
  * names don't match the method names exactly. So we avoid our
@@ -33,11 +35,16 @@ import javax.persistence.Transient;
  * The underlying cause of the issue appears to be that Spring
  * uses reflection (or similar) and probes the properties
  * themselves rather than their bean method names.
+ * 
+ * To give us the ability to iterate through a node's children in the
+ * same order for (potentially) matching trees, we implement the
+ * {@link Comparable} interface. Strictly speaking, we should also
+ * override equals(), but we haven't yet.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
 @Entity
-public class Node
+public class Node implements Comparable<Node>
 {
     /** The node's unique identifier. */
     @Id
@@ -232,6 +239,15 @@ public class Node
     }
 
     /**
+     * @return this node's children sorted by ID
+     */
+    public Iterator<Node> getSortedChildren()
+    {
+        final SortedSet<Node> sortedChildren = new TreeSet<Node>(children);
+        return sortedChildren.iterator();
+    }
+
+    /**
      * @return Whether this node is the root node.
      */
     @Transient
@@ -264,5 +280,24 @@ public class Node
          .append(desc)
          .append(")");
         return s.toString();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(final Node other)
+    {
+        // Required by the specification.
+        if (other == null)
+        {
+            throw new NullPointerException();
+        }
+        // This is our call. We only compare Nodes with IDs.
+        if ((id == null) || (other.getId() == null))
+        {
+            throw new NullPointerException();
+        }
+        return id.compareTo(other.getId());
     }
 }

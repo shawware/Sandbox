@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Utility class for displaying a node in its hierarchy.
+ * Utility class for displaying and comparing nodes and node trees.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
+@SuppressWarnings("nls")
 public class NodeDisplay
 {
     /**
@@ -27,7 +28,6 @@ public class NodeDisplay
      * 
      * @return the string to display
      */
-    @SuppressWarnings("nls")
     public static String createDisplayString(final Node node)
     {
         final StringBuilder sb = new StringBuilder();
@@ -79,9 +79,9 @@ public class NodeDisplay
                     sb.append("    ");
                 }
                 sb.append(n.toString());
-                sb.append(" (").
-                   append(System.identityHashCode(n)).
-                   append(")");
+                sb.append(" (")
+                   .append(System.identityHashCode(n))
+                   .append(")");
                 sb.append("\n");
             }
         }
@@ -91,9 +91,9 @@ public class NodeDisplay
     /**
      * Recursively iterates through the given nodes and adds them to the given list.
      * 
-     * @param nodes
-     * @param children
-     * @param level
+     * @param nodes the list of nodes to add to
+     * @param children the set of child nodes to process
+     * @param level the level the child nodes are at
      */
     private static void addChildren(final List<NodeInfo> nodes, final Set<Node> children, final int level)
     {
@@ -103,6 +103,90 @@ public class NodeDisplay
             final Node child = it.next();
             nodes.add(new NodeInfo(level, child));
             addChildren(nodes, child.getChildren(), level + 1);
+        }
+    }
+
+    /**
+     * Compares to root nodes for equality and reference equality.
+     * 
+     * @param n1 the first node
+     * @param n2 the second node
+     * 
+     * @return string representation of comparison
+     */
+    public static String compareRootNodes(final Node n1, final Node n2)
+    {
+        final StringBuilder sb = new StringBuilder();
+        if (n1.isRoot() && n2.isRoot())
+        {
+            compareNodes(sb, n1, n2);
+        }
+        else
+        {
+            sb.append("Not comparing root nodes\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Compares the given nodes and adds the comparison result to the given
+     * string builder. Recursively calls itself on the nodes' children.
+     * 
+     * @param sb where to record the comparison results
+     * @param n1 the first node to compare
+     * @param n2 the second node to compare
+     */
+    private static void compareNodes(final StringBuilder sb, final Node n1, final Node n2)
+    {
+        sb.append("Node: ");
+        if ((n1.getId() != null) && n1.getId().equals(n2.getId()))
+        {
+            sb.append("[")
+              .append(n1.getId())
+              .append("] ");
+            boolean match = true;
+            if (n1.getDescription().equals(n2.getDescription()))
+            {
+                sb.append(n1.getDescription());
+            }
+            else
+            {
+                sb.append("Mismatched descriptions: \"" + n1.getDescription() + "\", \"" + n2.getDescription() + "\"");
+                match = false;
+            }
+            if (!n1.getActivity().equals(n2.getActivity()))
+            {
+                sb.append("\n\tMismatched activities: " + n1.getActivity() + ", " + n2.getActivity());
+                match = false;
+            }
+            if (!n1.getType().equals(n2.getType()))
+            {
+                sb.append("\n\tMismatched types: " + n1.getType() + ", " + n2.getDescription());
+                match = false;
+            }
+            if (match)
+            {
+                sb.append(" => attributes match, ");
+                sb.append("object references " + ((n1 == n2) ? "match" : "do not match"));
+            }
+            sb.append("\n");
+            if (n1.getChildren().size() == n2.getChildren().size())
+            {
+                final Iterator<Node> c1 = n1.getSortedChildren();
+                final Iterator<Node> c2 = n2.getSortedChildren();
+                while (c1.hasNext())
+                {
+                    compareNodes(sb, c1.next(), c2.next());
+                }
+            }
+            else
+            {
+                sb.append("Different number of children\n");
+            }
+        }
+        else
+        {
+            sb.append("Mismatched IDs: " + n1.getId() + ", " + n2.getId() + "\n");
         }
     }
 }

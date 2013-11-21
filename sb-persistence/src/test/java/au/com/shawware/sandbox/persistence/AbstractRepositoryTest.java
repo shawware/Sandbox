@@ -229,10 +229,17 @@ public abstract class AbstractRepositoryTest
         // This save should cascade from the root to all nodes.
         repo.save(root);
         mLog.info("Root:\n" + NodeDisplay.createDisplayString(root));
-        mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
-
         Node copy = repo.findOne(root.getId());
         mLog.info("Root(2):\n" + NodeDisplay.createDisplayString(copy));
+        // Comparing the root with itself matches nodes and references.
+        mLog.info("Self Comparison:\n" + NodeDisplay.compareRootNodes(root, root));
+        // Comparing the saved root with a loaded version of itself matches nodes, but not references.
+        mLog.info("Load (1) Comparison:\n" + NodeDisplay.compareRootNodes(root, copy));
+        // Comparing two versions of the root matches nodes, but not references.
+        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findOne(root.getId())));
+        // So there's no clever caching when we load entities.
+
+        mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
         copy = repo.findOne(data[3].getId());
         mLog.info("NSW(2):\n" + NodeDisplay.createDisplayString(copy));
     }
