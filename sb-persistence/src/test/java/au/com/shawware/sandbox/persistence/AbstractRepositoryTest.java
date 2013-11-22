@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 
 import au.com.shawware.sandbox.model.Node;
+import au.com.shawware.sandbox.model.NodeDisplay;
 import au.com.shawware.sandbox.model.NodeType;
 import au.com.shawware.util.ValueCounter;
 
@@ -41,18 +42,25 @@ public abstract class AbstractRepositoryTest
     }
 
     /**
+     * Requires sub-classes to provide a "salt" to help distinguish test data
+     * in the repository.
+     * 
+     * @return the sub-class's salt - must be unique across all sub-classes.
+     */
+    abstract protected String salt();
+
+    /**
      * Basic tests on on the given repository.
      * 
      * @param repo the repository to use
      */
     protected void testRepository(final NodeRepository repo)
     {
-        final String ACTIVITY = "Basketball";
+        final String ACTIVITY = salt() + "-" + "Basketball";
         final Node n = repo.save(new Node(ACTIVITY, NodeType.Country, "Australia"));
         mLog.info("First node: " + n);
         Assert.assertEquals(ACTIVITY, n.getActivity());
         Assert.assertEquals(NodeType.Country, n.getType());
-        Assert.assertEquals(Integer.valueOf(1), n.getId());
         List<Node> nodes;
         nodes = repo.findByActivityAndType(ACTIVITY, NodeType.Local);
         Assert.assertEquals("found a local node", 0, nodes.size());
@@ -70,7 +78,7 @@ public abstract class AbstractRepositoryTest
      */
     protected void testBulkData(final NodeRepository repo)
     {
-        final String ACTIVITY = "Football-Test";
+        final String ACTIVITY = salt() + "-" + "Football-Bulk";
         final NodeType[] types = NodeType.values();
         final ValueCounter<NodeType> counts = new ValueCounter<NodeType>();
         int i;
@@ -101,9 +109,14 @@ public abstract class AbstractRepositoryTest
         }
     }
 
+    /**
+     * Tests the parent relationship using the given repository.
+     * 
+     * @param repo the repository to test with
+     */
     protected void testParentRelationship(final NodeRepository repo)
     {
-        final String ACTIVITY = "Football";
+        final String ACTIVITY = salt() + "-" + "Football-P";
         /**
          * Test data:
          *  - the first item must be the root
@@ -173,6 +186,66 @@ public abstract class AbstractRepositoryTest
     }
 
     /**
+     * Tests the child relationship using the given repository.
+     * 
+     * @param repo the repository to test with
+     */
+    protected void testChildRelationship(final NodeRepository repo)
+    {
+        final String ACTIVITY = salt() + "-" + "Football-C";
+        /**
+         * Test data:
+         *  - the first item must be the root
+         *  - we specify the child as the node "below" with type immediately "greater than" current type
+         */
+        final Node[] data = new Node[]
+        {
+             new Node(ACTIVITY, NodeType.World, "FIFA"),
+             new Node(ACTIVITY, NodeType.Region, "AFC"),
+             new Node(ACTIVITY, NodeType.Country, "Australia"),
+             new Node(ACTIVITY, NodeType.State, "NSW"),
+             new Node(ACTIVITY, NodeType.Local, "SUSFC"),
+             new Node(ACTIVITY, NodeType.Local, "BTFC"),
+             new Node(ACTIVITY, NodeType.State, "VIC"),
+             new Node(ACTIVITY, NodeType.Local, "BFC"),
+        };
+        int i;
+        final Node root = data[0];
+        mLog.info(root);
+        for (i=1; i<data.length; i++)
+        {
+            final Node child = data[i];
+            for (int j = (i-1); j >= 0; j--)
+            {
+                if (data[j].getType().ordinal() == (child.getType().ordinal() - 1))
+                {
+                    data[j].addChild(child);
+                    mLog.info("Node[" + j + "]'s child is Node[" + i + "]");
+                    break;
+                }
+            }
+            mLog.info(child);
+        }
+        // This save should cascade from the root to all nodes.
+        repo.save(root);
+        mLog.info("Root:\n" + NodeDisplay.createDisplayString(root));
+        // This load should cascade from the root to all nodes.
+        Node copy = repo.findOne(root.getId());
+        mLog.info("Root(2):\n" + NodeDisplay.createDisplayString(copy));
+        // Comparing the root with itself matches nodes and references.
+        mLog.info("Self Comparison:\n" + NodeDisplay.compareRootNodes(root, root));
+        // Comparing the saved root with a loaded version of itself matches nodes, but not references.
+        mLog.info("Load (1) Comparison:\n" + NodeDisplay.compareRootNodes(root, copy));
+        // Comparing two loaded versions of the root matches nodes, but not references.
+        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findOne(root.getId())));
+        // So there's no clever caching when we load entities using the Spring-generated repo.
+
+        mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
+        copy = repo.findOne(data[3].getId());
+        mLog.info("NSW(2):\n" + NodeDisplay.createDisplayString(copy));
+    }
+
+    /**
      * Holds a test datum.
      */
     private class Datum
@@ -188,7 +261,7 @@ public abstract class AbstractRepositoryTest
          * @param type node type
          * @param desc node description
          */
-        Datum(final NodeType type, final String desc)
+        public Datum(final NodeType type, final String desc)
         {
             this.type = type;
             this.desc = desc;

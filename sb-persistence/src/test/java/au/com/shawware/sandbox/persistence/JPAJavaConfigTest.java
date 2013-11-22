@@ -40,6 +40,12 @@ public class JPAJavaConfigTest extends AbstractRepositoryTest
     @Autowired
     private EntityManager mManager;
 
+    @Override
+    protected String salt()
+    {
+        return "Java"; //$NON-NLS-1$
+    }
+
     /**
      * Set up the test harness before running any test.
      */
@@ -84,5 +90,14 @@ public class JPAJavaConfigTest extends AbstractRepositoryTest
     public void parentRelationshipTest()
     {
         testParentRelationship(sRepo);
+    }
+
+    /**
+     * Tests on child relationship.
+     */
+    @Test
+    public void childRelationshipTest()
+    {
+        testChildRelationship(sRepo);
     }
 }

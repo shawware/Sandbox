@@ -20,10 +20,12 @@ public class ModelTest
 {
     /* Pre-defined sport */
     private static final String FOOTBALL = "Football";
-    /* Pre-defined country */
-    private static final String OZ = "Australia";
+    /* Pre-defined root */
+    private static final String FIFA = "FIFA";
     /* Pre-defined region */
     private static final String AFC = "AFC";
+    /* Pre-defined country */
+    private static final String OZ = "Australia";
 
     /**
      * Test the node entity.
@@ -39,8 +41,13 @@ public class ModelTest
         Assert.assertEquals(OZ, child.getDescription());
 
         final Node parent = new Node(Integer.valueOf(4), FOOTBALL, NodeType.Region, AFC);
-        child.setParent(parent);
-        System.out.println(parent);
-        System.out.println(child);
+        parent.addChild(child);
+
+        final Node fifa = new Node(Integer.valueOf(0), FOOTBALL, NodeType.World, FIFA);
+        fifa.addChild(parent);
+
+        System.out.println(NodeDisplay.createDisplayString(fifa));
+        System.out.println(NodeDisplay.createDisplayString(parent));
+        System.out.println(NodeDisplay.createDisplayString(child));
     }
 }

@@ -7,6 +7,12 @@
 
 package au.com.shawware.sandbox.model;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,11 +22,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 /**
- * Defines a node within a tree. Follows the Composite pattern.
- * Implemented as a simple bean / entity.
+ * Defines a node within a tree. Implemented as a simple bean / entity.
  * 
  * Note: Spring seems to have trouble if persisted attributes'
  * names don't match the method names exactly. So we avoid our
@@ -29,11 +35,16 @@ import javax.persistence.Transient;
  * The underlying cause of the issue appears to be that Spring
  * uses reflection (or similar) and probes the properties
  * themselves rather than their bean method names.
+ * 
+ * To give us the ability to iterate through a node's children in the
+ * same order for (potentially) matching trees, we implement the
+ * {@link Comparable} interface. Strictly speaking, we should also
+ * override equals(), but we haven't yet.
  *
  * @author <a href="mailto:david.shaw@shawware.com.au">David Shaw</a>
  */
 @Entity
-public class Node
+public class Node implements Comparable<Node>
 {
     /** The node's unique identifier. */
     @Id
@@ -59,12 +70,17 @@ public class Node
     @JoinColumn(name = "ParentID")
     private Node parent;
 
+    /** The node's children, <code>null</code> or empty if leaf. */
+    @OneToMany(orphanRemoval = true, cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "parent")
+    private Set<Node> children;
+
     /**
      * Default constructor for a node.
      */
     public Node()
     {
         super();
+        children = new HashSet<Node>();
     }
 
     /**
@@ -185,7 +201,50 @@ public class Node
     public void setParent(final Node parent)
     {
         // TODO: prevent cycles and self-reference.
+        // TODO: check for correct type nesting
         this.parent = parent;
+    }
+
+    /**
+     * Adds the given node as a child of this one.
+     * Sets the child node's parent accordingly.
+     * 
+     * @param child the new child node
+     */
+    public void addChild(final Node child)
+    {
+        // TODO: check if child already in this set.
+        children.add(child);
+        child.setParent(this);
+    }
+
+    /**
+     * @return this node's children 
+     */
+    public Set<Node> getChildren()
+    {
+        return children;
+    }
+
+    /**
+     * Sets this node's children.
+     * 
+     * @param children the new children
+     */
+    public void setChildren(final Set<Node> children)
+    {
+        // TODO: check for cycles, etc.
+        // TODO: check for correct type nesting
+        this.children = children;
+    }
+
+    /**
+     * @return this node's children sorted by ID
+     */
+    public Iterator<Node> getSortedChildren()
+    {
+        final SortedSet<Node> sortedChildren = new TreeSet<Node>(children);
+        return sortedChildren.iterator();
     }
 
     /**
@@ -195,6 +254,15 @@ public class Node
     public boolean isRoot()
     {
         return (parent == null);
+    }
+
+    /**
+     * @return Whether this node is a leaf node.
+     */
+    @Transient
+    public boolean isLeaf()
+    {
+        return ((children == null) || (children.size() == 0));
     }
 
     @Override
@@ -211,11 +279,25 @@ public class Node
          .append(", ")
          .append(desc)
          .append(")");
-        if (!isRoot())
-        {
-            s.append(" => ")
-             .append(parent.toString());
-        }
         return s.toString();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(final Node other)
+    {
+        // Required by the specification.
+        if (other == null)
+        {
+            throw new NullPointerException();
+        }
+        // This is our call. We only compare Nodes with IDs.
+        if ((id == null) || (other.getId() == null))
+        {
+            throw new NullPointerException();
+        }
+        return id.compareTo(other.getId());
     }
 }
