@@ -7,6 +7,8 @@
 
 package au.com.shawware.sandbox.persistence;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +21,7 @@ import org.junit.Assert;
 import au.com.shawware.sandbox.model.Node;
 import au.com.shawware.sandbox.model.NodeDisplay;
 import au.com.shawware.sandbox.model.NodeType;
+import au.com.shawware.util.MutableBoolean;
 import au.com.shawware.util.ValueCounter;
 
 /**
@@ -190,6 +193,7 @@ public abstract class AbstractRepositoryTest
      * 
      * @param repo the repository to test with
      */
+    @SuppressWarnings("boxing")
     protected void testChildRelationship(final NodeRepository repo)
     {
         final String ACTIVITY = salt() + "-" + "Football-C";
@@ -232,12 +236,21 @@ public abstract class AbstractRepositoryTest
         // This load should cascade from the root to all nodes.
         Node copy = repo.findOne(root.getId());
         mLog.info("Root(2):\n" + NodeDisplay.createDisplayString(copy));
+
+        final MutableBoolean valuesEqual = new MutableBoolean();
+        final MutableBoolean refsEqual = new MutableBoolean();
         // Comparing the root with itself matches nodes and references.
-        mLog.info("Self Comparison:\n" + NodeDisplay.compareRootNodes(root, root));
+        mLog.info("Self Comparison:\n" + NodeDisplay.compareRootNodes(root, root, valuesEqual, refsEqual));
+        Assert.assertThat(valuesEqual.getValue(), equalTo(true));
+        Assert.assertThat(refsEqual.getValue(), equalTo(true));
         // Comparing the saved root with a loaded version of itself matches nodes, but not references.
-        mLog.info("Load (1) Comparison:\n" + NodeDisplay.compareRootNodes(root, copy));
+        mLog.info("Load (1) Comparison:\n" + NodeDisplay.compareRootNodes(root, copy, valuesEqual, refsEqual));
+        Assert.assertThat(valuesEqual.getValue(), equalTo(true));
+        Assert.assertThat(refsEqual.getValue(), equalTo(false));
         // Comparing two loaded versions of the root matches nodes, but not references.
-        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findOne(root.getId())));
+        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findOne(root.getId()), valuesEqual, refsEqual));
+        Assert.assertThat(valuesEqual.getValue(), equalTo(true));
+        Assert.assertThat(refsEqual.getValue(), equalTo(false));
         // So there's no clever caching when we load entities using the Spring-generated repo.
 
         mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
