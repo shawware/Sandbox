@@ -60,10 +60,8 @@ public class NodeDisplay
 
             // Build the display string from the list.
             // Indent according to the display level. Mark the key node.
-            final Iterator<NodeInfo> it = nodes.iterator();
-            while (it.hasNext())
+            for (final NodeInfo ni : nodes)
             {
-                final NodeInfo ni = it.next();
                 final Node n = ni.node;
                 boolean oneLess = false;
                 if (n == node)
@@ -99,10 +97,8 @@ public class NodeDisplay
      */
     private static void addChildren(final List<NodeInfo> nodes, final Set<Node> children, final int level)
     {
-        final Iterator<Node> it = children.iterator();
-        while (it.hasNext())
+        for (final Node child : children)
         {
-            final Node child = it.next();
             nodes.add(new NodeInfo(level, child));
             addChildren(nodes, child.getChildren(), level + 1);
         }

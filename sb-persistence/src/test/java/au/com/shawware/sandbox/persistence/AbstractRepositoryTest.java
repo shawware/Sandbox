@@ -10,7 +10,6 @@ package au.com.shawware.sandbox.persistence;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -160,10 +159,8 @@ public abstract class AbstractRepositoryTest
             mLog.info("Saved data[" + i + "]: " + n);
             nodes.put(n.getId(), n);
         }
-        final Iterator<Integer> ids = nodes.keySet().iterator();
-        while (ids.hasNext())
+        for (final Integer id : nodes.keySet())
         {
-            final Integer id = ids.next();
             final Node n1 = nodes.get(id);
             mLog.info("Looking for: " + n1);
             final Node n2 = repo.findOne(id);
