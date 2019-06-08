@@ -11,14 +11,14 @@
   <parent>
     <groupId>au.com.shawware</groupId>
     <artifactId>sw-sandbox</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>4.2.7.SP1</version>
+      <version>5.4.3.Final</version>
     </dependency>
   </dependencies>
 </project>

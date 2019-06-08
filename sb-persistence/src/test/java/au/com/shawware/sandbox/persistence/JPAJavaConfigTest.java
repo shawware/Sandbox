@@ -7,18 +7,13 @@
 
 package au.com.shawware.sandbox.persistence;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -28,17 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {JPAConfiguration.class})
-@Transactional
-@TransactionConfiguration(defaultRollback = true)
+@Transactional()
 public class JPAJavaConfigTest extends AbstractRepositoryTest
 {
     /** The application context to use for all beans. */
     private static ApplicationContext sContext;
     /** The node repository to use for all transactions. */
     private static NodeRepository sRepo;
-
-    @Autowired
-    private EntityManager mManager;
 
     @Override
     protected String salt()
@@ -54,15 +45,6 @@ public class JPAJavaConfigTest extends AbstractRepositoryTest
     {
         sContext = new AnnotationConfigApplicationContext(JPAConfiguration.class);
         sRepo = sContext.getBean(NodeRepository.class);
-    }
-
-    /**
-     * Test for the presences of the entity manager.
-     */
-    @Test
-    public void testManager()
-    {
-        Assert.assertNotNull(mManager);
     }
 
     /**

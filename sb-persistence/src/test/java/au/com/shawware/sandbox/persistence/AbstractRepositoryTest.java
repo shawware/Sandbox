@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,9 +69,9 @@ public abstract class AbstractRepositoryTest
         Assert.assertEquals("found a local node", 0, nodes.size());
         nodes = repo.findByActivityAndType(ACTIVITY, NodeType.Country);
         Assert.assertEquals("did not find a country node", 1, nodes.size());
-        final Node n2 = repo.findOne(n.getId());
-        mLog.info("node lookup: " + n2);
-        repo.delete(Integer.valueOf(1));
+        final Optional<Node> n2 = repo.findById(n.getId());
+        mLog.info("node lookup: " + n2.get());
+        repo.deleteById(Integer.valueOf(1));
     }
 
     /**
@@ -163,7 +164,7 @@ public abstract class AbstractRepositoryTest
         {
             final Node n1 = nodes.get(id);
             mLog.info("Looking for: " + n1);
-            final Node n2 = repo.findOne(id);
+            final Node n2 = repo.findById(id).get();
             mLog.info("Found: " + n2);
             // TODO: write: Node.equals()?
             Assert.assertEquals(n1.getId(), n2.getId());
@@ -231,7 +232,7 @@ public abstract class AbstractRepositoryTest
         repo.save(root);
         mLog.info("Root:\n" + NodeDisplay.createDisplayString(root));
         // This load should cascade from the root to all nodes.
-        Node copy = repo.findOne(root.getId());
+        Node copy = repo.findById(root.getId()).get();
         mLog.info("Root(2):\n" + NodeDisplay.createDisplayString(copy));
 
         final MutableBoolean valuesEqual = new MutableBoolean();
@@ -245,13 +246,13 @@ public abstract class AbstractRepositoryTest
         Assert.assertThat(valuesEqual.getValue(), equalTo(true));
         Assert.assertThat(refsEqual.getValue(), equalTo(false));
         // Comparing two loaded versions of the root matches nodes, but not references.
-        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findOne(root.getId()), valuesEqual, refsEqual));
+        mLog.info("Load (2) Comparison:\n" + NodeDisplay.compareRootNodes(copy, repo.findById(root.getId()).get(), valuesEqual, refsEqual));
         Assert.assertThat(valuesEqual.getValue(), equalTo(true));
         Assert.assertThat(refsEqual.getValue(), equalTo(false));
         // So there's no clever caching when we load entities using the Spring-generated repo.
 
         mLog.info("NSW:\n" + NodeDisplay.createDisplayString(data[3]));
-        copy = repo.findOne(data[3].getId());
+        copy = repo.findById(data[3].getId()).get();
         mLog.info("NSW(2):\n" + NodeDisplay.createDisplayString(copy));
     }
 

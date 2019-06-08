@@ -11,14 +11,14 @@
   <parent>
     <groupId>au.com.shawware</groupId>
     <artifactId>sw-sandbox</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.2.4.RELEASE</version>
+      <version>5.1.7.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>javax.inject</groupId>
